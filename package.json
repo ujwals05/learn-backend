@@ -1,0 +1,17 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "\"This is to learn backend in JS\"",
+  "keywords": [
+    "backend",
+    "nodejs",
+    "un"
+  ],
+  "license": "ISC",
+  "author": "ujwal",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
