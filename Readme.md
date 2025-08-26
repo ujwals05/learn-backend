@@ -1,4 +1,4 @@
-# This series is to learn backed in javascript
+# This repo is to learn backend in javascript
 
-This series is to continue in backend after finishing the frontend (REACT)
+Getting started with backend stuffs
 <br>
