@@ -1,7 +1,9 @@
 import e from "express";
+const app = e();
+
 import cookieParser from "cookie-parser";
 import cors from "cors";
-const app = e();
+
 
 //Middlewares
 app.use(
@@ -9,6 +11,7 @@ app.use(
     origin: process.env.CORS_ORIGIN,
   }),
 );
+
 app.use(e.json({ limit: "16 kb" }));
 app.use(e.urlencoded({ limit: "16 kb" }));
 app.use(e.static("public"))
