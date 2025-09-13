@@ -12,3 +12,28 @@ It contains core backend concepts such as REST APIs, authentication, database in
 - Multer for File Uploads
 - Postman for API Testing
 - Dotenv for Environment Variables
+
+#Setup
+1. **Clone the repository**
+   git clone https://github.com/ujwals05/learning-backend.git
+2. cd learning-backend
+3. npm install
+4. Create a .env file
+   Consist of some sensitive data
+5. npm run dev
+
+## Dependencies
+- express
+- mongoose
+- bcrypt
+- jsonwebtoken
+- dotenv
+- cors
+- cookie-parser
+- multer
+- cloudinary
+- mongoose-aggregate-paginate-v2
+
+## Dev Dependencies
+- nodemon
+- prettier
