@@ -17,7 +17,7 @@ const userSchema = new mongoose.Schema(
       index: true,
     },
     email: {
-      type: string,
+      type: String,
       required: true,
       unique: true,
       trim: true,
@@ -66,15 +66,16 @@ userSchema.methods.generateAccessToken = async function () {
       username: this.username,
       email: this.email,
     },
-    process.env.ACCESS_TOKEN_SECRET,
+    process.env.ACCESS_TOKEN_SECRET, 
     {
       expiresIn: process.env.ACCESS_TOKEN_EXPIRY,
     },
   );
 }
 
-userSchema.methods.refreshToken = function(){
-  
+userSchema.methods.generateAccessToken = function(){
+
 }
+
 
 export const user = mongoose.model("user", userSchema);
