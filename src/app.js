@@ -17,4 +17,12 @@ app.use(e.urlencoded({ limit: "16 kb" }));
 app.use(e.static("public"))
 app.use(cookieParser())
 
+//router importing
+import router from "./routers/user.router.js";
+//router declearation
+app.use("/api/v1/users",router)
+
+app.get("/",(req,res)=>{
+  res.send("HI")
+})
 export default app;
