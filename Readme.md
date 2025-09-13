@@ -1,4 +1,14 @@
-# This repo is to learn backend in javascript
+# Learning Backend Development with Node.js & Expresst
 
-Getting started with backend stuffs
+This repository is dedicated to learning and practicing backend development using Node.js and Express.js.  
+It contains core backend concepts such as REST APIs, authentication, database integration, and file uploads
 <br>
+## Technologies
+- Node.js
+- Express.js
+- MongoDB & Mongoose
+- JWT for Authentication
+- Bcrypt for Password Hashing
+- Multer for File Uploads
+- Postman for API Testing
+- Dotenv for Environment Variables
