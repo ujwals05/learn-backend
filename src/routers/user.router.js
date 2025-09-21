@@ -20,6 +20,7 @@ router.route('/register').post(
   ),        //upload. has many options like any 'any','array','field','none','single'
   registerUser
 )
+
 router.route('/login').post(
   userLogin
 )

@@ -21,7 +21,7 @@ export const registerUser = async (req,res,next) => {
     // 3.Check if already user exists
     // const userExist = user.findOne({email})   'simple way to check whether the user exist or not 
     // if(userExist) return res.status(400).json({message:"User already exist"})
-    const userExist = user.findOne({
+    const userExist = await user.findOne({
       $or: [{username},{email}]
     })
     if(userExist){
@@ -80,7 +80,27 @@ export const registerUser = async (req,res,next) => {
 
 export const userLogin = async(req,res,next) =>{
   try {
+
+    //Get the user data from frontend
+    const {email,password} = req.body
     
+    //Validating
+    if(!email){
+      throw new APIError(400,"Email field is missing")
+    }
+    if(!password){
+      throw new APIError(400,"Password field is missing ")
+    }
+    
+    //Checking if the user exists
+    const findUser = await user.findOne({email})
+    if(!findUser){
+      throw new APIError(400,"User doesn't exists")
+    }
+
+    //Checking for correct password 
+    
+
   } catch (error) {
     console.log(error)
   }
