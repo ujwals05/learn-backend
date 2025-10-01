@@ -20,7 +20,8 @@ const cloudUpLoad = async (localFilePath) => {
     });
 
     //File uploaded successfully
-    console.log("The file has been uploaded successfully", result.url);
+    //console.log("The file has been uploaded successfully", result.url);
+    fs.unlinkSync(localFilePath)
     return result;
   } catch (error) {
     console.log("There is an error in uploading the file",error);
