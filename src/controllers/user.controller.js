@@ -19,10 +19,10 @@ export const registerUser = async (req, res) => {
     // 1.Get user details from frontend (For now from POSTMAN)
     const { username, email, password, fullname } = req.body;
     //console.log(req.body)
-    //console.log("email",email,"username",username) - Checking whether is it working through POSTMAN
+    //console.log("email",email,"username",username) // Checking whether is it working through POSTMAN
 
     // 2.Validation - Check for the empty field in the user entry
-    // if(!username || !email || !password || !fullname)          'simple way to check for validation
+    // if(!username || !email || !password || !fullname)          //simple way to check for validation
     //   return res.status(400).json({message:"All field are required"});
     if (fullname === "") throw new APIError(400, "The name has to be entered"); //Same way write it for all the rest files
 
@@ -48,8 +48,9 @@ export const registerUser = async (req, res) => {
       Array.isArray(req.files.coverImage) &&
       req.files.coverImage.length > 0
     ) {
-      coverImageLocalPath = req.files.coverImage[0].path;
+      coverImageLocalPath = req.files?.coverImage[0].path;
     }
+    
     if (!avatarLocalPath) {
       throw new APIError(400, "Avatar file is required");
     }
