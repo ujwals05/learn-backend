@@ -49,7 +49,8 @@ const userSchema = new mongoose.Schema(
   },
 );
 
-userSchema.pre("save", async function (next) {
+//The below function running before the the data is stored in the database , If there is any changes in password then it will hash the password and sends to the backend 
+userSchema.pre("save", async function (next) {        
   if (!this.isModified("password")) return next();
   this.password = await bcrypt.hash(this.password, 10);
   next();
