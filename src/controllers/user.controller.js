@@ -97,7 +97,6 @@ export const loginUser = async (req, res) => {
   try {
     //1. Get the data
     const { username, email, password } = req.body;
-    console.log(req.body);
 
     //Checking for all the field is filled
     if (!(username || email)) {
@@ -146,10 +145,9 @@ export const loginUser = async (req, res) => {
           "User logged in successfully",
           200,
           {
-            user: username,
             refreshToken,
             accessToken,
-            email: email,
+            userLogin
           },
           true,
         ),
@@ -185,7 +183,7 @@ export const logoutUser = async (req, res) => {
       .clearCookie("refreshToken", options)
       .json(new APIresponse(200, {}, "User logged out successfully"));
   } catch (error) {
-    throw new APIError(400, "User couldn't logout");
+    throw new APIError(400, error?.message || "User couldn't logout");
   }
 };
 
@@ -238,3 +236,42 @@ export const refreshAccessToken = async (req, res) => {
     throw new APIError(401, error?.message);
   }
 };
+
+//The below code is just for trail
+// export const refreshAccessTokenId = async (req, res) => {
+//   try {
+//     const incomingCookie = req.user;
+//     const userInfo = await user.findById(incomingCookie?._id);
+//     if (!userInfo) {
+//       throw new APIError(401, "Invalid user doesnt exist");
+//     }
+//     if (incomingCookie?.refreshToken !== userInfo.refreshToken) {
+//       throw new APIError(401, "Refresh token has expired");
+//     }
+
+//     const { accessToken, refreshToken } = await generateAccessRefreshToken(
+//       userInfo._id,
+//     );
+//     const options = {
+//       httpOnly: true,
+//       secure: true,
+//     };
+//     return res
+//       .status(200)
+//       .cookie("accessToken", accessToken, options)
+//       .cookie("refreshToken", refreshToken, options)
+//       .json(
+//         new APIresponse(
+//           200,
+//           {
+//             accessToken,
+//             refreshToken,
+//           },
+//           "Access token refreshed",
+//           true,
+//         ),
+//       );
+//   } catch (error) {
+//     throw new APIError(400, error?.message || "Cannot refresh the token");
+//   }
+// };
