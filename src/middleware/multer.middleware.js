@@ -43,3 +43,7 @@ const storage = multer.diskStorage({
 
 
 export const upload = multer({ storage });
+
+
+//This middleware will provide .files OR .file , We can use this using "req.file"
+//In the same way auth middlware will provide .user we can use that by using req.user
