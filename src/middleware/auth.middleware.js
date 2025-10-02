@@ -23,3 +23,5 @@ export const verifyJWT = async(req,_,next) => {
     throw new APIError(401,error?.message || "Invalid access token")
   }
 }
+
+//This middelware will provide req.user Which can be further used to get the information about users
