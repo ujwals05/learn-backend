@@ -147,7 +147,7 @@ export const loginUser = async (req, res) => {
           {
             refreshToken,
             accessToken,
-            userLogin
+            userLogin,
           },
           true,
         ),
@@ -275,3 +275,135 @@ export const refreshAccessToken = async (req, res) => {
 //     throw new APIError(400, error?.message || "Cannot refresh the token");
 //   }
 // };
+
+export const changePassword = async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+
+    const User = await user.findById(req.user._id);
+
+    const checkPassword = User.isPasswordCorrect(currentPassword);
+    if (!checkPassword) {
+      throw new APIError(400, "Incorrect password");
+    }
+
+    User.password = newPassword;
+    await User.save({ validateBeforeSave: false });
+
+    return res
+      .status(200)
+      .json(new APIresponse(200, {}, "Password changes successfully", true));
+  } catch (error) {
+    throw new APIError(
+      400,
+      error?.message || "Problem while changing password",
+    );
+  }
+};
+
+export const currentUser = async (req, res) => {
+  try {
+    const userInfo = req.user;
+    return res
+      .status(200)
+      .json(
+        new APIresponse(200, { userInfo }, "The current user is displayed"),
+      );
+  } catch (error) {
+    throw new APIError(400, "User not found");
+  }
+};
+
+export const updateUser = async (req, res) => {
+  try {
+    const { fullname, email } = req.body;
+    if (!(fullname || email)) {
+      throw new APIError(400, "There should be no empty filed");
+    }
+
+    const User = await user
+      .findByIdAndUpdate(
+        req.user._id,
+        {
+          $set: {
+            fullname: fullname,
+            email: email,
+          },
+        },
+        { new: true },
+      )
+      .select("-password");
+
+    return res
+      .status(200)
+      .json(new APIresponse(200, User, "User is updated successfully", true));
+  } catch (error) {
+    throw new APIError(400, error?.message || "Cannot update user");
+  }
+};
+
+export const updateAvatar = async (req, res) => {
+  try {
+    const avatarLocalPath = req.file?.path;
+    if (!avatarLocalPath) {
+      throw new APIError(400, "Cannot find local path of avatar");
+    }
+
+    const saveAvatar = await cloudUpLoad(avatarLocalPath);
+    if (!saveAvatar.url) {
+      throw new APIError(400, "Cannot get url of avatar");
+    }
+
+    const User = await user
+      .findByIdAndUpdate(
+        req.user?._id,
+        {
+          $set: {
+            avatar: saveAvatar.url,
+          },
+        },
+        { new: true },
+      )
+      .select("-password");
+
+    return res
+      .status(200)
+      .json(
+        new APIresponse(200, { User }, "Avatar updated successfully", true),
+      );
+  } catch (error) {
+    throw new APIError(400, error?.message || "Couldnt update avatar");
+  }
+};
+
+export const updateCoverImage = async (req, res) => {
+  try {
+    const coverImageLocalPath = req.file?.path;
+    if (!coverImageLocalPath) {
+      throw new APIError(400, "Cannot find coverImage");
+    }
+    const uploadCoverImage = await cloudUpLoad(coverImageLocalPath);
+    if (!uploadCoverImage.url) {
+      throw new APIError(400, "Cannot find cover image url");
+    }
+    const User = await user
+      .findByIdAndUpdate(
+        req.user?._id,
+        {
+          $set: {
+            coverImage: uploadCoverImage.url,
+          },
+        },
+        { new: true },
+      )
+      .select("-password");
+
+    return res
+      .status(200)
+      .json(
+        new APIresponse(200, User, "Cover image updated successfully", true),
+      );
+  } catch (error) {
+    throw new APIError(400, error?.message || "Cannot update cover image");
+  }
+};
