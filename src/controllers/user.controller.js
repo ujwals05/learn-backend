@@ -3,6 +3,7 @@ import { user } from "../models/user.model.js";
 import cloudUpLoad from "../utils/cloudinary.js";
 import { APIresponse } from "../utils/apiResponse.js";
 import jwt from "jsonwebtoken";
+import { Subscription } from "../models/subscription.model.js";
 
 const generateAccessRefreshToken = async (userID) => {
   const User = await user.findById(userID);
@@ -407,3 +408,82 @@ export const updateCoverImage = async (req, res) => {
     throw new APIError(400, error?.message || "Cannot update cover image");
   }
 };
+
+//This below controller is bit advance part
+//Aggregation pipeline has been written to display the user profile
+export const userChannelProfile = async (req, res) => {
+  try {
+    const { username } = req.params;
+    if (!username.trim()) {
+      throw new APIError(400, "Cannot find username");
+    }
+    // const User = user.find({username})   This is done normally to find whether the user is present or not , But now we can do this in the aggreation pipeline
+    const channel = await user.aggregate(
+      {
+        $match: {
+          username: username?.toLowerCase(),
+        },
+      },
+      {
+        $lookup: {
+          from: "subscription",
+          localField: "_id",
+          foreignField: "channel",
+          as: "subscribers",
+        },
+      },
+      {
+        $lookup: {
+          from: "subscription",
+          localField: "_id",
+          foreignField: "subscriber",
+          as: "subscribed",
+        },
+      },
+      {
+        $addField: {
+          subscriberCount: {
+            $size: "$subscribers",
+          },
+          subscribedCount: {
+            $size: "$subscribed",
+          },
+          isSubscribed: {
+            $in: [req.user?._id, "$subscribers.subscriber"],  //middleware should be used 
+            then: true,
+            else: false,
+          },
+        },
+      },
+      {
+        $project: {
+          fullName: 1,
+          username: 1,
+          subscribedCount: 1,
+          subscriberCount: 1,
+          isSubscribed: 1,
+          avatar: 1,
+          coverImage: 1,
+        },
+      },
+    );
+
+    if (!channel.length) {
+      throw new APIError(400, "Cannot find the channel");
+    }
+
+    return res
+      .status(200)
+      .json(
+        new APIresponse(
+          200,
+          channel[0],
+          "User profile sent successfully",
+          true,
+        ),
+      );
+  } catch (error) {
+    throw new APIError(400, error?.message || "Cannot get user profile");
+  }
+};
+
