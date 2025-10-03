@@ -328,7 +328,7 @@ export const updateUser = async (req, res) => {
 
     const User = await user
       .findByIdAndUpdate(
-        req.user._id,
+        req.user?._id,
         {
           $set: {
             fullname: fullname,
@@ -369,7 +369,7 @@ export const updateAvatar = async (req, res) => {
         },
         { new: true },
       )
-      .select("-password");
+      .select("-password -refreshToken");
 
     return res
       .status(200)
@@ -422,7 +422,7 @@ export const userChannelProfile = async (req, res) => {
       throw new APIError(400, "Cannot find username");
     }
     // const User = user.find({username})   This is done normally to find whether the user is present or not , But now we can do this in the aggreation pipeline
-    const channel = await user.aggregate(
+    const channel = await user.aggregate([
       {
         $match: {
           username: username?.toLowerCase(),
@@ -445,7 +445,7 @@ export const userChannelProfile = async (req, res) => {
         },
       },
       {
-        $addField: {
+        $addFields: {
           subscriberCount: {
             $size: "$subscribers",
           },
@@ -453,15 +453,18 @@ export const userChannelProfile = async (req, res) => {
             $size: "$subscribed",
           },
           isSubscribed: {
-            $in: [req.user?._id, "$subscribers.subscriber"], //middleware should be used
-            then: true,
-            else: false,
+            $cond: {
+              if: { $in: [req.user?._id, "$subscribers.subscriber"] },
+              //middleware should be used
+              then: true,
+              else: false,
+            },
           },
         },
       },
       {
         $project: {
-          fullName: 1,
+          fullname: 1,
           username: 1,
           subscribedCount: 1,
           subscriberCount: 1,
@@ -470,7 +473,7 @@ export const userChannelProfile = async (req, res) => {
           coverImage: 1,
         },
       },
-    );
+    ]);
 
     if (!channel.length) {
       throw new APIError(400, "Cannot find the channel");
