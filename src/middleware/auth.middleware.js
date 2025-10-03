@@ -10,7 +10,7 @@ export const verifyJWT = async(req,_,next) => {
     }
     const decodedUser =  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
 
-    const User = await user.findById(decodedUser?._id).select("-password")
+    const User = await user.findById(decodedUser?._id).select("-password -refreshToken")
 
     if(!User){
       throw new APIError(404,"Invalid creditinal")
