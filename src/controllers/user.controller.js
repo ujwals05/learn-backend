@@ -4,6 +4,7 @@ import cloudUpLoad from "../utils/cloudinary.js";
 import { APIresponse } from "../utils/apiResponse.js";
 import jwt from "jsonwebtoken";
 import { Subscription } from "../models/subscription.model.js";
+import mongoose from "mongoose";
 
 const generateAccessRefreshToken = async (userID) => {
   const User = await user.findById(userID);
@@ -46,6 +47,7 @@ export const registerUser = async (req, res) => {
 
     let coverImageLocalPath;
     if (
+      //Review this part
       req.files &&
       Array.isArray(req.files.coverImage) &&
       req.files.coverImage.length > 0
@@ -85,7 +87,9 @@ export const registerUser = async (req, res) => {
     // 9.return res
     return res
       .status(201)
-      .json(new APIresponse("User registered Successfully", 200, createdUser));
+      .json(
+        new APIresponse(200, createdUser, "User registered Successfully", true),
+      );
   } catch (error) {
     (console.log("ERROR OCCURES : ", error),
       res.status(500).json({
@@ -449,7 +453,7 @@ export const userChannelProfile = async (req, res) => {
             $size: "$subscribed",
           },
           isSubscribed: {
-            $in: [req.user?._id, "$subscribers.subscriber"],  //middleware should be used 
+            $in: [req.user?._id, "$subscribers.subscriber"], //middleware should be used
             then: true,
             else: false,
           },
@@ -487,3 +491,98 @@ export const userChannelProfile = async (req, res) => {
   }
 };
 
+//This controller for watch history is much more complicated as compared to subscription
+//Here we will see how to implement nested lookup
+
+//Key takeaway: user._id -> This is handled by mongoose , Mongoose is the main which gets the strings in mongodb It will be in ObjectId("xya..."), But in aggregation mongoose wont work so we should initate it
+
+// const userWaterHistory = async (req, res) => {
+//   try {
+//     const userId = req.user._id;
+//     const history = await user.aggregate(
+//       {
+//         $match: {
+//           _id: new mongoose.Types.ObjectId(userId), //mongoose is implemented
+//         },
+//       },
+//       {
+//         $lookup: {
+//           from: "video",
+//           localField: "watchHistory",
+//           foreignField: "_id",
+//           as: "Watch history",
+//           pipeline: [           //This is the sub pipelines
+//             {
+//               $lookup: {
+//                 from: video,
+//               },
+//             },
+//           ],
+//         },
+//       },
+//     );
+//   } catch (error) {
+//     throw new APIError(400, error?.message || "Cannot get user watch history");
+//   }
+// };
+
+export const userWatchHistory = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const User = await user.aggregate(
+      {
+        $match: {
+          _id: mongoose.Types.ObjectId(userId),
+        },
+      },
+      {
+        $lookup: {
+          from: "video",
+          localField: "watchHistory",
+          foreignField: "_id",
+          as: "watchHistory",
+          pipeline: [
+            {
+              $lookup: {
+                from: "user",
+                localField: "owner",
+                foreignField: "_id",
+                as: "owner",
+                pipeline: [
+                  {
+                    project: {
+                      fullName: 1,
+                      username: 1,
+                      avatar: 1,
+                    },
+                  },
+                ],
+              },
+            },
+            {
+              $addField: {
+                owner: {
+                  $first: "$owner",
+                },
+              },
+            },
+          ],
+        },
+      },
+    );
+
+    return (
+      res.status(200),
+      json(
+        new APIresponse(
+          200,
+          User[0].watchHistory,
+          "Watch history of user sent successfully",
+          true,
+        ),
+      )
+    );
+  } catch (error) {
+    throw new APIError(400, error?.message || "Cannot get user watch history");
+  }
+};
