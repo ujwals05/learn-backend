@@ -113,7 +113,6 @@ export const videoLikes = async (req, res) => {
           200,
           { videoId, likes: Video.likes },
           "Video is liked",
-          true,
         ),
       );
   } catch (error) {

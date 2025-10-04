@@ -1,4 +1,4 @@
-# Learning Backend Development with Node.js & Expresst
+# Learning Backend Development with Node.js & Express
 
 This repository is dedicated to learning and practicing backend development using Node.js and Express.js.  
 It contains core backend concepts such as REST APIs, authentication, database integration, and file uploads
