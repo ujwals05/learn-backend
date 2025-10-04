@@ -15,7 +15,7 @@ const generateAccessRefreshToken = async (userID) => {
   await User.save({ validateBeforeSave: false }); //Saving the data in DB without validation
 
   return { accessToken, refreshToken };
-};
+}; 
 
 export const registerUser = async (req, res) => {
   try {
