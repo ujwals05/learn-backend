@@ -1,7 +1,12 @@
 import { Router } from "express";
 import { upload } from "../middleware/multer.middleware";
 import { verifyJWT } from "../middleware/auth.middleware";
-import { videoUpload } from "../controllers/video.controller";
+import {
+  videoLikes,
+  videoPublish,
+  videoUpload,
+  videoViews,
+} from "../controllers/video.controller";
 
 const videoRouter = Router();
 
@@ -20,5 +25,11 @@ videoRouter.route(
   ],
   videoUpload,
 );
+videoRouter.route("/:videoId/published", verifyJWT, videoPublish);
+
+videoRouter.route("/:videoId/likes", verifyJWT, videoLikes);
+
+videoRouter.route("/:videoId/views", verifyJWT, videoViews);
+
 
 export default videoRouter;

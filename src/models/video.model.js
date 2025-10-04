@@ -28,6 +28,9 @@ const videoSchema = Schema(
       default: 0,
       required: true,
     },
+    likes: {
+      type: Number,
+    },
     isPublished: {
       type: Boolean,
       required: true,

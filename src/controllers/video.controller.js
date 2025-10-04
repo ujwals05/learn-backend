@@ -47,3 +47,108 @@ export const videoUpload = async (req, res) => {
     throw new APIError(400, error?.message || "Problem while video upload");
   }
 };
+
+export const videoPublish = async (req, res) => {
+  try {
+    //1.Get video id from params
+    const { videoId } = req.params;
+
+    const userInfo = req.user; //Checking for user logged in or not
+    if (!userInfo) {
+      throw new APIError(400, "Login required");
+    }
+
+    //2.Find the video details in database
+    const Video = await video.findOne(videoId);
+
+    if (!Video) {
+      throw new APIError(400, "Cannot find the video in the database");
+    }
+
+    //3. Check for authorization
+    if (Video?.owner.toString() !== req.user?._id.toString()) {
+      throw new APIError(400, "Unauthorized");
+    }
+
+    //4. If published make it unpublish else make it publish
+    Video.isPublished = !Video.isPublished;
+
+    //5. Save the info in the database
+    await Video.save();
+
+    return res
+      .status(200)
+      .json(
+        200,
+        {},
+        `Video is ${Video.isPublished ? "Published" : "Unpublished"}`,
+      );
+  } catch (error) {
+    throw new APIError(400, error?.message || "Cannot publish video");
+  }
+};
+
+export const videoLikes = async (req, res) => {
+  try {
+    const { videoId } = req.params;
+    const userInfo = req.user;
+
+    const Video = video.findById(videoId);
+    if (!Video) {
+      throw new APIError(400, "Cannot find the Video");
+    }
+
+    if (!userInfo) {
+      throw new APIError("Cannot like the video");
+    }
+
+    Video.likes = (Video.likes || 0) + 1;
+
+    await Video.save();
+
+    return res
+      .status(200)
+      .json(
+        new APIresponse(
+          200,
+          { videoId, likes: Video.likes },
+          "Video is liked",
+          true,
+        ),
+      );
+  } catch (error) {
+    throw new APIError(400, error?.message || "Cannot get likes");
+  }
+};
+
+export const videoViews = async (req, res) => {
+  try {
+    const videoId = req.params;
+    const userInfo = req.user;
+    if (!userInfo) {
+      throw new APIError(400, "Login required");
+    }
+    const Video = await video.findByIdAndUpdate(
+      videoId,
+      {
+        $inc: { views: 1 },
+      },
+      { new: true },
+    );
+
+    Video.save();
+
+    return res
+      .status(200)
+      .json(
+        new APIresponse(
+          200,
+          { videoId, views: Video.views },
+          "Views fetched successfully",
+          true,
+        ),
+      );
+  } catch (error) {
+    throw new APIError(400, error?.message || "Can't increase video views");
+  }
+};
